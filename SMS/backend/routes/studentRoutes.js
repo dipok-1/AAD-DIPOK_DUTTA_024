@@ -1,6 +1,8 @@
 import express from 'express';
-import { addStudent, getStudent } from '../controller/studentController';
-const studentRouter = express.Router();
+import { addStudent, getStudent, updateStudent, deleteStudent } from '../controller/studentController.js';
+export const studentRouter = express.Router();
 
-studentRouter.post('/', addStudent)
-studentRouter.get('/', getStudent)
+studentRouter.post('/student', addStudent)
+studentRouter.get('/students', getStudent)
+studentRouter.put('/student/:id', updateStudent)
+studentRouter.delete('/student/:id', deleteStudent)

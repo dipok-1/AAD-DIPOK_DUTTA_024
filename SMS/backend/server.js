@@ -3,7 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
-import { addStudent, getStudent } from './controller/studentController.js';
+import { studentRouter } from './routes/studentRoutes.js';
 
 const app = express();
 await connectDB();
@@ -12,12 +12,12 @@ app.use(cors({
 }))
 app.use(express.json())
 
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
     res.send("Student Management System API is running")
 })
 
-app.use('/api/student', addStudent);
-app.use('/api/students', getStudent);
+app.use('/api', studentRouter);
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server started at port ${PORT}`)
