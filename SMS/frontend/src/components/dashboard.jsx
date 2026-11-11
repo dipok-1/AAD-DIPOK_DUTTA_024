@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { deleteStudent, getStudentList, updateStudent } from "../utils/api";
+import { SearchBar } from "./SearchBar";
 import { StudentForm } from "./studentForm";
 
 export function DashBoard() {
     const [students, setStudents] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState(null);
     const [busyId, setBusyId] = useState(null);
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const filteredStudents = students.filter((student) =>
+        [student.name, student.rollNo].some((value) =>
+            String(value ?? "").toLowerCase().includes(normalizedSearchTerm)
+        )
+    );
 
     function handleStudentListSection() {
         setOpen(true);
@@ -173,6 +181,8 @@ export function DashBoard() {
 
                         </div>
 
+                        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
                         <div className="overflow-hidden border border-[#303030] bg-[#0d0d0d]">
 
                             <table className="w-full border-collapse text-left font-mono text-xs">
@@ -212,7 +222,7 @@ export function DashBoard() {
                                 {/* Table Body */}
                                 <tbody>
 
-                                    {students.map((item) => {
+                                    {filteredStudents.map((item) => {
                                         const isEditing = editingId === item._id;
                                         const isBusy = busyId === item._id;
                                         const isAnotherRowEditing = editingId !== null && !isEditing;
@@ -347,10 +357,12 @@ export function DashBoard() {
                                         );
                                     })}
 
-                                    {students.length === 0 && (
+                                    {filteredStudents.length === 0 && (
                                         <tr>
                                             <td colSpan="6" className="px-5 py-8 text-center text-[#666]">
-                                                No students found.
+                                                {students.length === 0
+                                                    ? "No students found."
+                                                    : "No students match your search."}
                                             </td>
                                         </tr>
                                     )}

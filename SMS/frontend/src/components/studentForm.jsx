@@ -6,28 +6,49 @@ export function StudentForm() {
     const [name, setName] = useState("");
     const [rollNo, setRollNo] = useState("");
     const [course, setCourse] = useState("");
-    const [year, setYear] = useState(0);
+    const [year, setYear] = useState("");
     const [email, setEmail] = useState("");
 
     function clearInput() {
         setName("");
         setCourse("");
-        setRollNo("")
-        setYear(0);
-        setEmail("")
+        setRollNo("");
+        setYear("");
+        setEmail("");
     }
 
-    async function handleCreateStudent() {
-        const payLoad = {
-            name,
-            rollNo,
-            course,
-            year,
-            email
+    async function handleCreateStudent(event) {
+        event.preventDefault();
+
+        if (![name, rollNo, course, year, email].every((value) => value.trim())) {
+            toast.error("All fields are required.");
+            return;
         }
-        await addStudent(payLoad);
-        console.log("successfully added student")
-        toast.success('sucessfully added student');
+
+        if (!event.currentTarget.elements.email.checkValidity()) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
+        const numericYear = Number(year);
+        if (!Number.isInteger(numericYear) || numericYear <= 0) {
+            toast.error("Year must be a positive whole number.");
+            return;
+        }
+
+        try {
+            await addStudent({
+                name: name.trim(),
+                rollNo: rollNo.trim(),
+                course: course.trim(),
+                year: numericYear,
+                email: email.trim(),
+            });
+            toast.success("Student added successfully.");
+            clearInput();
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Unable to add student. Please try again.");
+        }
     }
 
     return (
@@ -56,7 +77,7 @@ export function StudentForm() {
             </div>
 
 
-            <form className="border border-[#303030] bg-[#0d0d0d]">
+            <form noValidate onSubmit={handleCreateStudent} className="border border-[#303030] bg-[#0d0d0d]">
 
                 <div className="border-b border-[#303030] bg-[#111111] px-5 py-3">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-[#777]">
@@ -72,6 +93,7 @@ export function StudentForm() {
                     </label>
 
                     <input
+                        name="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         type="text"
@@ -101,6 +123,7 @@ export function StudentForm() {
                     </label>
 
                     <input
+                        name="rollNo"
                         value={rollNo}
                         onChange={(e) => setRollNo(e.target.value)}
                         type="text"
@@ -129,6 +152,7 @@ export function StudentForm() {
                     </label>
 
                     <input
+                        name="course"
                         value={course}
                         onChange={(e) => setCourse(e.target.value)}
                         type="text"
@@ -157,9 +181,12 @@ export function StudentForm() {
                     </label>
 
                     <input
+                        name="year"
                         value={year}
-                        onChange={(e) => setYear(parseInt(e.target.value))}
+                        onChange={(e) => setYear(e.target.value)}
                         type="number"
+                        min="1"
+                        step="1"
                         placeholder="Enter year"
                         className="
                             w-full
@@ -185,9 +212,11 @@ export function StudentForm() {
                     </label>
 
                     <input
+                        name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         type="email"
+                        required
                         placeholder="Enter email"
                         className="
                             w-full
@@ -228,8 +257,7 @@ export function StudentForm() {
                     </button>
 
                     <button
-                        onClick={handleCreateStudent}
-                        type="button"
+                        type="submit"
                         className="
                             border
                             border-[#665522]
@@ -254,4 +282,3 @@ export function StudentForm() {
         </main>
     );
 }
-
